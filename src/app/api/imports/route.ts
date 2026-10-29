@@ -1,4 +1,5 @@
 import { validateImportMapping } from "@/lib/csv-mapping";
+import { dateKey } from "@/lib/time";
 import { importRows, importSchema } from "@/server/ingestion/csv";
 import { syncDemoSessionBundle, warmDemoSessionFromCookies } from "@/server/auth/session";
 import { fail, formatError, ok, readJson } from "@/server/http";
@@ -38,7 +39,15 @@ export async function POST(request: Request) {
     });
     await replan(store, venue);
     await syncDemoSessionBundle(store, account, venue);
-    return ok(job, `Imported ${count} rows`);
+    const sampleTs =
+      input.kind === "sales"
+        ? imported.sales[0]?.ts
+        : imported.reservations[0]?.slotStart;
+    const peekDate = sampleTs ? dateKey(new Date(sampleTs), venue.timezone) : undefined;
+    return ok(
+      { job, rowCount: count, kind: input.kind, filename: input.filename, peekDate },
+      `Imported ${count} ${input.kind === "sales" ? "sales" : "reservation"} rows and recalculated the week.`,
+    );
   } catch (error) {
     return fail(formatError(error), 400);
   }

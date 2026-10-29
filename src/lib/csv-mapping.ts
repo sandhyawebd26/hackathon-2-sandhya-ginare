@@ -23,10 +23,10 @@ const PARTY_KEYS = ["party_size", "partysize", "party", "guests", "guest_count",
 const STATUS_KEYS = ["status", "state", "booking_status"];
 const SOURCE_KEYS = ["source", "channel", "origin", "referrer"];
 
-const SALES_COVERS = ["covers", "cover", "guests"];
-const SALES_ORDERS = ["orders", "order_count", "ordercount", "tickets"];
-const SALES_VALUE = ["value", "amount", "revenue", "total", "order_value"];
-const SALES_CHANNEL = ["channel", "type"];
+const SALES_COVERS = ["covers", "cover", "guests", "guest_count"];
+const SALES_ORDERS = ["orders", "order_count", "ordercount", "tickets", "ticket_count"];
+const SALES_VALUE = ["value", "amount", "revenue", "total", "order_value", "revenue_inr"];
+const SALES_CHANNEL = ["channel", "type", "order_type"];
 
 function pick(headers: string[], keys: string[], blocked = new Set<string>()) {
   const normalized = headers.map((h) => ({ raw: h, n: norm(h) }));

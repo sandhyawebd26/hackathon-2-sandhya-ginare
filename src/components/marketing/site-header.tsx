@@ -22,7 +22,7 @@ export function SiteHeader() {
     <header className="landing-header-enter relative z-20 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-4">
         <ShiftSenseLogo href="/" size="md" className="min-w-0" tagline="Workforce planning" />
-        <nav className="hidden items-center gap-8 text-[11px] uppercase tracking-[0.22em] md:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-6 text-[11px] uppercase tracking-[0.22em] lg:flex xl:gap-8" aria-label="Primary">
           {links.map((link) => (
             <Link key={link.href} href={link.href}>
               {link.label}
@@ -39,7 +39,7 @@ export function SiteHeader() {
           </Link>
           <button
             type="button"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center border border-border md:hidden"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center border border-border lg:hidden"
             aria-expanded={open}
             aria-controls="site-mobile-nav"
             aria-label={open ? "Close menu" : "Open menu"}
@@ -52,7 +52,7 @@ export function SiteHeader() {
       {open ? (
         <nav
           id="site-mobile-nav"
-          className="mt-4 flex flex-col gap-1 border border-border bg-card p-3 md:hidden"
+          className="mt-4 flex flex-col gap-1 border border-border bg-card p-3 lg:hidden"
           aria-label="Mobile"
         >
           {links.map((link) => (

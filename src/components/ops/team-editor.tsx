@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ActionFeedback, feedbackFromResponse, type ActionFeedbackState } from "@/components/ops/action-feedback";
 import { StaffAvatar } from "@/components/ops/staff-avatar";
 import { Button } from "@/components/ui/button";
 import type { RoleConfig, StaffMember } from "@/lib/domain";
@@ -17,7 +18,7 @@ export function TeamEditor({
   roles: RoleConfig[];
 }) {
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
   const [pending, setPending] = useState(false);
   const [page, setPage] = useState(1);
   const active = roles.filter((role) => role.enabled);
@@ -65,7 +66,7 @@ export function TeamEditor({
           event.preventDefault();
           const formEl = event.currentTarget;
           setPending(true);
-          setMessage("");
+          setFeedback(null);
           const form = new FormData(formEl);
           const response = await fetch("/api/team", {
             method: "POST",
@@ -78,7 +79,12 @@ export function TeamEditor({
             }),
           });
           const body = (await response.json()) as { success?: boolean; message?: string };
-          setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not add the team member"));
+          setFeedback(
+            feedbackFromResponse(body, {
+              success: "Team member added.",
+              error: "Could not add the team member.",
+            }),
+          );
           setPending(false);
           if (body.success) {
             formEl.reset();
@@ -110,7 +116,7 @@ export function TeamEditor({
           </Button>
         </div>
       </form>
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      <ActionFeedback feedback={feedback} />
     </div>
   );
 }

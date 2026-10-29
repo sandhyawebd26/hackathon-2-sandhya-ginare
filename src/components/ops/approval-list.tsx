@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
+import { ActionFeedback, type ActionFeedbackState } from "@/components/ops/action-feedback";
 import { Button } from "@/components/ui/button";
 import type { Recommendation } from "@/lib/domain";
 import { formatMoney } from "@/lib/time";
@@ -29,7 +30,7 @@ export function ApprovalList({
   const [rows, setRows] = useState(initialRows);
   const [pending, setPending] = useState<string | null>(null);
   const [edits, setEdits] = useState<Record<string, string>>({});
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
 
   useEffect(() => {
     setRows(initialRows);
@@ -37,11 +38,11 @@ export function ApprovalList({
 
   async function act(id: string, action: "accepted" | "edited" | "ignored") {
     setPending(id);
-    setMessage("");
+    setFeedback(null);
     const editedRaw = edits[id] ?? "";
     const editedRequired = action === "edited" ? Number(editedRaw) : undefined;
     if (action === "edited" && (!Number.isFinite(editedRequired) || editedRequired! < 0)) {
-      setMessage("Enter a valid headcount before saving an edit.");
+      setFeedback({ tone: "error", text: "Enter a valid headcount before saving an edit." });
       setPending(null);
       return;
     }
@@ -59,10 +60,13 @@ export function ApprovalList({
     const body = (await response.json()) as { message?: string; success?: boolean };
     if (body.success) {
       setRows((current) => current.filter((row) => row.id !== id));
-      setMessage(body.message ?? clientMessages[action]);
+      setFeedback({ tone: "success", text: body.message ?? clientMessages[action] });
       router.refresh();
     } else {
-      setMessage(body.message ?? `Could not update (HTTP ${response.status})`);
+      setFeedback({
+        tone: "error",
+        text: body.message ?? `Could not update this gap (HTTP ${response.status}). Refresh and try again.`,
+      });
     }
     setPending(null);
   }
@@ -73,13 +77,7 @@ export function ApprovalList({
         Showing staffing gaps for <span className="text-foreground">{weekLabel}</span>. Each row is one role at one
         service hour.
       </p>
-      {message && (
-        <p
-          className={`text-sm ${message.includes("Could not") || message.includes("Refresh") ? "text-under" : "text-accent"}`}
-        >
-          {message}
-        </p>
-      )}
+      <ActionFeedback feedback={feedback} />
       {!rows.length ? (
         <div className="space-y-3 text-sm text-muted-foreground">
           <p>No open gaps in this window.</p>

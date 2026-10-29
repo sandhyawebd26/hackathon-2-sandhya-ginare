@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ActionFeedback, type ActionFeedbackState } from "@/components/ops/action-feedback";
 import { Button } from "@/components/ui/button";
 import { PasswordField } from "@/components/ui/password-field";
 import { COUNTRIES } from "@/lib/countries";
@@ -11,7 +12,7 @@ const field = "mt-2 w-full border-b border-border bg-transparent py-2 text-base 
 
 export function LoginForm() {
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
   const [pending, setPending] = useState(false);
 
   return (
@@ -20,7 +21,7 @@ export function LoginForm() {
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
-        setMessage("");
+        setFeedback(null);
         const form = new FormData(event.currentTarget);
         const response = await fetch("/api/auth/login", {
           method: "POST",
@@ -33,7 +34,7 @@ export function LoginForm() {
         const body = (await response.json()) as { success?: boolean; message?: string };
         setPending(false);
         if (!body.success) {
-          setMessage(body.message ?? "Could not sign in");
+          setFeedback({ tone: "error", text: body.message ?? "Could not sign in." });
           return;
         }
         router.push("/dashboard");
@@ -51,14 +52,14 @@ export function LoginForm() {
       <Button type="submit" disabled={pending}>
         {pending ? "Signing in" : "Sign in"}
       </Button>
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      <ActionFeedback feedback={feedback} />
     </form>
   );
 }
 
 export function SignupForm() {
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
   const [pending, setPending] = useState(false);
 
   return (
@@ -67,7 +68,7 @@ export function SignupForm() {
       onSubmit={async (event) => {
         event.preventDefault();
         setPending(true);
-        setMessage("");
+        setFeedback(null);
         const form = new FormData(event.currentTarget);
         const response = await fetch("/api/auth/signup", {
           method: "POST",
@@ -85,7 +86,7 @@ export function SignupForm() {
         const body = (await response.json()) as { success?: boolean; message?: string };
         setPending(false);
         if (!body.success) {
-          setMessage(body.message ?? "Could not create the account");
+          setFeedback({ tone: "error", text: body.message ?? "Could not create the account." });
           return;
         }
         router.push("/dashboard");
@@ -137,7 +138,7 @@ export function SignupForm() {
         <Button type="submit" disabled={pending}>
           {pending ? "Creating the house" : "Create account"}
         </Button>
-        {message && <p className="mt-4 text-sm text-muted-foreground">{message}</p>}
+        <ActionFeedback feedback={feedback} />
       </div>
     </form>
   );

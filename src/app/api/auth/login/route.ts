@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (!venue) return fail("Your venue is not available on this server. Sign up again or use Supabase mode.", 503);
     await setSession(account, venue);
     await syncDemoSessionBundle(memoryStore, account, venue);
-    return ok({ name: account.name });
+    return ok({ name: account.name }, `Signed in as ${account.name}.`);
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not sign in", 400);
   }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ActionFeedback, feedbackFromResponse, type ActionFeedbackState } from "@/components/ops/action-feedback";
 import { Button } from "@/components/ui/button";
 
 function readNumber(value: FormDataEntryValue | null, fallback: number) {
@@ -15,7 +16,7 @@ function readNumber(value: FormDataEntryValue | null, fallback: number) {
 
 export function EventForm({ venueId }: { venueId: string }) {
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
   const [serviceDate, setServiceDate] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
@@ -26,7 +27,8 @@ export function EventForm({ venueId }: { venueId: string }) {
         event.preventDefault();
         const formEl = event.currentTarget;
         setPending(true);
-        setMessage("");
+        setFeedback(null);
+        setServiceDate(null);
         const form = new FormData(formEl);
         const starts = String(form.get("startsAt") ?? "").trim();
         const title = String(form.get("title") ?? "").trim();
@@ -48,14 +50,17 @@ export function EventForm({ venueId }: { venueId: string }) {
           success?: boolean;
           data?: { serviceDate?: string };
         };
-        setMessage(body.message ?? "Saved");
+        setFeedback(
+          feedbackFromResponse(body, {
+            success: "Event added and the week replanned.",
+            error: "Could not add the event.",
+          }),
+        );
         setPending(false);
         if (body.success) {
           formEl.reset();
           router.refresh();
-          if (body.data?.serviceDate) {
-            setServiceDate(body.data.serviceDate);
-          }
+          if (body.data?.serviceDate) setServiceDate(body.data.serviceDate);
         }
       }}
     >
@@ -88,8 +93,8 @@ export function EventForm({ venueId }: { venueId: string }) {
         <Button type="submit" disabled={pending}>
           {pending ? "Recalculating" : "Add and replan"}
         </Button>
-        {message && <p className="text-sm text-accent">{message}</p>}
-        {serviceDate ? (
+        <ActionFeedback feedback={feedback} />
+        {serviceDate && feedback?.tone === "success" ? (
           <p className="text-sm text-muted-foreground">
             Next:{" "}
             <Link className="text-foreground underline" href={`/staffing?venue=${venueId}&date=${serviceDate}`}>

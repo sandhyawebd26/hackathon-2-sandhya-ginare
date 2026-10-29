@@ -3,17 +3,18 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { ActionFeedback, feedbackFromResponse, type ActionFeedbackState } from "@/components/ops/action-feedback";
 import { Button } from "@/components/ui/button";
 import type { RoleConfig } from "@/lib/domain";
 
 export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleConfig[] }) {
   const router = useRouter();
-  const [message, setMessage] = useState("");
+  const [feedback, setFeedback] = useState<ActionFeedbackState>(null);
   const [pending, setPending] = useState(false);
 
   async function save(role: RoleConfig, options?: { refresh?: boolean }) {
     setPending(true);
-    setMessage("");
+    setFeedback(null);
     const response = await fetch("/api/roles", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -21,7 +22,12 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
     });
     const body = (await response.json()) as { message?: string; success?: boolean };
     const ok = Boolean(body.success);
-    setMessage(ok ? (body.message ?? "Saved") : (body.message ?? "Could not save the role"));
+    setFeedback(
+      feedbackFromResponse(body, {
+        success: "Role saved.",
+        error: "Could not save the role.",
+      }),
+    );
     setPending(false);
     if (ok && options?.refresh !== false) router.refresh();
     return ok;
@@ -98,7 +104,7 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
           </Button>
         </div>
       </form>
-      {message && <p className="text-sm text-muted-foreground">{message}</p>}
+      <ActionFeedback feedback={feedback} />
     </div>
   );
 }
