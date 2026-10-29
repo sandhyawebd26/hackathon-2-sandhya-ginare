@@ -9,10 +9,10 @@ export default function LoginPage() {
       kicker="Admin"
       title="Sign in"
       hero={{
-        src: "/landing/kitchen-pass.jpg",
-        alt: "Plates leaving the kitchen pass",
-        label: "Service",
-        lead: "Back to the pass.",
+        src: "/staff/team-briefing.jpg",
+        alt: "Service team briefing before the shift",
+        label: "Your team",
+        lead: "Back to the floor.",
       }}
       footer={{ href: "/signup", label: "Create an account" }}
     >

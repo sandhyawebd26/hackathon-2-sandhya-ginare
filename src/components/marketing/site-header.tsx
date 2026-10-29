@@ -8,6 +8,7 @@ import { ShiftSenseLogo } from "@/components/brand/logo";
 import { ThemeSwitch } from "@/components/theme/theme-switch";
 
 const links = [
+  { href: "/#team", label: "Team" },
   { href: "/#service", label: "Service" },
   { href: "/#houses", label: "Houses" },
   { href: "/#week", label: "The week" },
@@ -18,9 +19,9 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="relative z-20 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
+    <header className="landing-header-enter relative z-20 mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6">
       <div className="flex items-center justify-between gap-4">
-        <ShiftSenseLogo href="/" size="lg" className="min-w-0" />
+        <ShiftSenseLogo href="/" size="md" className="min-w-0" tagline="Workforce planning" />
         <nav className="hidden items-center gap-8 text-[11px] uppercase tracking-[0.22em] md:flex" aria-label="Primary">
           {links.map((link) => (
             <Link key={link.href} href={link.href}>
