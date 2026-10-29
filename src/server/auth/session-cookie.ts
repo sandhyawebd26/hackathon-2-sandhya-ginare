@@ -11,10 +11,15 @@ export type SessionBundle = {
 };
 
 function secret() {
-  const key = process.env.SESSION_SECRET || process.env.CRON_SECRET;
+  const key =
+    process.env.SESSION_SECRET?.trim() ||
+    process.env.CRON_SECRET?.trim() ||
+    process.env.SUPABASE_JWT_SECRET?.trim();
   if (key) return key;
   if (process.env.NODE_ENV === "production") {
-    throw new Error("SESSION_SECRET or CRON_SECRET is required in production");
+    throw new Error(
+      "SESSION_SECRET or CRON_SECRET is required in production (enable for Production, not Preview only)",
+    );
   }
   return "shiftsense-dev-session";
 }
