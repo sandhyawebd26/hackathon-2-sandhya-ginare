@@ -1,7 +1,8 @@
 import { z } from "zod";
 
+import { dateKey } from "@/lib/time";
 import { parseEventNote } from "@/server/ai/parse-event";
-import { syncDemoSessionBundle } from "@/server/auth/session";
+import { syncDemoSessionBundle, warmDemoSessionFromCookies } from "@/server/auth/session";
 import { fail, formatError, ok, readJson } from "@/server/http";
 import { replan } from "@/server/pipeline";
 import { resolveVenue } from "@/server/queries";
@@ -25,6 +26,7 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
+    await warmDemoSessionFromCookies();
     const { store, venue, account } = await resolveVenue(body.venueId);
     if (venue.id !== body.venueId) return fail("Venue not found", 404);
     const parsed = body.note ? await parseEventNote(body.note, venue.timezone) : null;
@@ -44,8 +46,16 @@ export async function POST(request: Request) {
       payload: { partySize: body.partySize ?? parsed?.partySize ?? "" },
     });
     await replan(store, venue);
-    await syncDemoSessionBundle(store, account, venue);
-    return ok(signal, "Event added and the floor plan recalculated");
+    try {
+      await syncDemoSessionBundle(store, account, venue);
+    } catch (syncError) {
+      console.error("syncDemoSessionBundle failed after event", syncError);
+    }
+    const serviceDate = dateKey(starts, venue.timezone);
+    return ok(
+      { signal, serviceDate },
+      `“${title}” is on the plan. Forecast (next 7 days), Staffing for ${serviceDate}, and Approvals were recalculated.`,
+    );
   } catch (error) {
     return fail(formatError(error), 400);
   }

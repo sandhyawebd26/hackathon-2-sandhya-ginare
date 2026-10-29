@@ -2,6 +2,7 @@ import Papa from "papaparse";
 import { z } from "zod";
 
 import type { Reservation, SalesFact, Venue } from "@/lib/domain";
+import { validateImportMapping } from "@/lib/csv-mapping";
 import { parseFlexibleTimestamp } from "@/lib/time";
 
 export const importSchema = z.object({
@@ -31,6 +32,9 @@ export function csvHeaders(csv: string) {
 }
 
 export function importRows(venue: Venue, input: z.infer<typeof importSchema>) {
+  const mappingError = validateImportMapping(input.kind, input.mapping);
+  if (mappingError) return { sales: [], reservations: [], errors: [mappingError] };
+
   const parsed = Papa.parse<Record<string, string>>(input.csv, {
     header: true,
     skipEmptyLines: true,

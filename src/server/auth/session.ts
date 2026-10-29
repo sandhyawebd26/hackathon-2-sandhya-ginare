@@ -53,13 +53,21 @@ export async function syncDemoSessionBundle(store: DataStore, account: Account, 
   const events = (await store.listSignals(venue.id, new Date(0).toISOString(), horizon)).filter(
     (row) => row.kind === "event",
   );
-  const recommendationOverrides = await store.listRecommendationOverrides(venue.id);
+  const recommendationOverrides = (await store.listRecommendationOverrides(venue.id)).slice(-48);
   const jar = await cookies();
-  jar.set(
-    SESSION_BUNDLE_COOKIE,
-    encodeSessionBundle({ v: 2, account, venue, roleConfigs, staff, events, recommendationOverrides }),
-    cookieOptions(),
-  );
+  const encoded = encodeSessionBundle({
+    v: 2,
+    account,
+    venue,
+    roleConfigs,
+    staff,
+    events,
+    recommendationOverrides,
+  });
+  if (encoded.length > 3800) {
+    throw new Error("Session bundle is too large; sign in again or reduce team size");
+  }
+  jar.set(SESSION_BUNDLE_COOKIE, encoded, cookieOptions());
 }
 
 export async function clearSession() {

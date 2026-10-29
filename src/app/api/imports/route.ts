@@ -1,5 +1,6 @@
+import { validateImportMapping } from "@/lib/csv-mapping";
 import { importRows, importSchema } from "@/server/ingestion/csv";
-import { syncDemoSessionBundle } from "@/server/auth/session";
+import { syncDemoSessionBundle, warmDemoSessionFromCookies } from "@/server/auth/session";
 import { fail, formatError, ok, readJson } from "@/server/http";
 import { replan } from "@/server/pipeline";
 import { resolveVenue } from "@/server/queries";
@@ -7,6 +8,9 @@ import { resolveVenue } from "@/server/queries";
 export async function POST(request: Request) {
   try {
     const input = importSchema.parse(await readJson(request));
+    await warmDemoSessionFromCookies();
+    const mappingError = validateImportMapping(input.kind, input.mapping);
+    if (mappingError) return fail(mappingError, 422);
     const { store, venue, account } = await resolveVenue(input.venueId);
     if (venue.id !== input.venueId) return fail("Venue not found", 404);
     const imported = importRows(venue, input);

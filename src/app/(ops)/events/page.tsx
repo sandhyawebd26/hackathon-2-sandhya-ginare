@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 
+import { ContextBanner } from "@/components/ops/context-banner";
 import { EventForm } from "@/components/ops/event-form";
 import { Heading } from "@/components/ops/heading";
 import { SignalsBriefing } from "@/components/ops/signals-briefing";
@@ -32,6 +33,14 @@ async function EventsContent({ searchParams }: { searchParams: Promise<{ venue?:
         kicker={`${venue.city} · ${venue.countryCode}`}
         title="A note becomes a headcount."
         copy="Holidays come from the venue's country. Weather comes from Open-Meteo. Everything else is entered here, then the week is replanned."
+      />
+      <ContextBanner
+        title="After you add an event"
+        lines={[
+          "1. The signal is saved with an impact multiplier on covers for overlapping hours.",
+          "2. The engine replans the next 7 days: Forecast curve, Staffing required counts, and Approvals gaps.",
+          "3. Roster shift names are not auto-changed — rebuild roster on the Roster page if needed.",
+        ]}
       />
       <SignalsBriefing venueId={venue.id} />
       <EventForm venueId={venue.id} />
