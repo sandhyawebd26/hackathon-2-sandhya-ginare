@@ -1,6 +1,7 @@
 import { connection } from "next/server";
 
 import type { Alert, Forecast, Recommendation, Venue } from "@/lib/domain";
+import { recommendationKey, stableRecommendationId } from "@/lib/recommendation-id";
 import { addDays, eachOpenHour, formatWhen, startOfZonedDay, weekdayName, zonedParts } from "@/lib/time";
 import { activeSignals, syncHolidays, syncWeather } from "@/server/features/signals";
 import { indexHistory, wcmaAt } from "@/server/forecast/wcma";
@@ -37,7 +38,13 @@ export async function runPipeline(store: DataStore, venue: Venue, from: Date, to
     sales.map((row) => ({ ts: row.ts, value: row.orderCount })),
     venue.timezone,
   );
-  const previous = new Map(existing.map((row) => [`${row.hourStart}|${row.role}`, row]));
+  const previous = new Map(existing.map((row) => [recommendationKey(row.hourStart, row.role), row]));
+  const overrides = new Map(
+    (await store.listRecommendationOverrides(venue.id)).map((row) => [
+      recommendationKey(row.hourStart, row.role),
+      row,
+    ]),
+  );
   const hours = eachOpenHour(from, to, venue.timezone, venue.openingHour, venue.closingHour);
   const forecasts: Forecast[] = [];
   const recommendations: Recommendation[] = [];
@@ -112,18 +119,22 @@ export async function runPipeline(store: DataStore, venue: Venue, from: Date, to
         kept.status !== "pending" &&
         kept.required === required &&
         kept.scheduled === scheduled;
+      const key = recommendationKey(hourIso, config.role);
+      const override = overrides.get(key);
+      const baseRequired = override?.required ?? required;
+      const baseDelta = baseRequired - scheduled;
       recommendations.push({
-        id: kept?.id ?? crypto.randomUUID(),
+        id: kept?.id ?? stableRecommendationId(venue.id, hourIso, config.role),
         venueId: venue.id,
         hourStart: hourIso,
         role: config.role,
-        required,
+        required: baseRequired,
         scheduled,
-        delta,
+        delta: baseDelta,
         hourlyCost: config.hourlyCost,
-        costImpact: delta * config.hourlyCost,
+        costImpact: baseDelta * config.hourlyCost,
         predictedCovers: Math.round(predictedCovers),
-        status: preserve ? kept.status : "pending",
+        status: preserve ? kept.status : override?.status ?? "pending",
         reasons: describeReasons({
           weekday: weekdayName(parts.weekday),
           baseline: stat.baseline,

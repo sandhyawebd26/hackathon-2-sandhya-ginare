@@ -348,6 +348,12 @@ export function createSupabaseStore(
       if (error) throw new Error(error.message);
       return data ? asRecommendation(data as Row) : null;
     },
+    async listRecommendationOverrides(_venueId: string) {
+      return [];
+    },
+    async saveRecommendationOverride() {
+      return;
+    },
     async actOnRecommendation(input) {
       const current = await store.getRecommendation(input.id);
       if (!current) throw new Error("Recommendation not found");

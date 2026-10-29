@@ -11,7 +11,7 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
   const [message, setMessage] = useState("");
   const [pending, setPending] = useState(false);
 
-  async function save(role: RoleConfig) {
+  async function save(role: RoleConfig, options?: { refresh?: boolean }) {
     setPending(true);
     setMessage("");
     const response = await fetch("/api/roles", {
@@ -20,9 +20,11 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
       body: JSON.stringify({ ...role, venueId }),
     });
     const body = (await response.json()) as { message?: string; success?: boolean };
-    setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not save the role"));
+    const ok = Boolean(body.success);
+    setMessage(ok ? (body.message ?? "Saved") : (body.message ?? "Could not save the role"));
     setPending(false);
-    if (body.success) router.refresh();
+    if (ok && options?.refresh !== false) router.refresh();
+    return ok;
   }
 
   return (
@@ -48,19 +50,26 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
         className="grid gap-4 border border-border p-5 md:grid-cols-2"
         onSubmit={async (event) => {
           event.preventDefault();
-          const form = new FormData(event.currentTarget);
-          await save({
-            id: crypto.randomUUID(),
-            venueId,
-            role: String(form.get("role") ?? ""),
-            department: String(form.get("department") ?? ""),
-            metric: String(form.get("metric") ?? "covers") as RoleConfig["metric"],
-            coversPerStaffHour: Number(form.get("ratio") ?? 20),
-            hourlyCost: Number(form.get("cost") ?? 15),
-            enabled: true,
-            isCustom: true,
-          });
-          event.currentTarget.reset();
+          const formEl = event.currentTarget;
+          const form = new FormData(formEl);
+          const ok = await save(
+            {
+              id: crypto.randomUUID(),
+              venueId,
+              role: String(form.get("role") ?? ""),
+              department: String(form.get("department") ?? ""),
+              metric: String(form.get("metric") ?? "covers") as RoleConfig["metric"],
+              coversPerStaffHour: Number(form.get("ratio") ?? 20),
+              hourlyCost: Number(form.get("cost") ?? 15),
+              enabled: true,
+              isCustom: true,
+            },
+            { refresh: false },
+          );
+          if (ok) {
+            formEl.reset();
+            router.refresh();
+          }
         }}
       >
         <p className="md:col-span-2 text-[11px] uppercase tracking-[0.18em] text-accent">Custom role</p>

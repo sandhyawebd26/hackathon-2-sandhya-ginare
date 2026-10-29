@@ -22,17 +22,24 @@ export function ApprovalList({
   async function act(id: string, action: "accepted" | "edited" | "ignored") {
     setPending(id);
     setMessage("");
+    const editedRaw = edits[id] ?? "";
+    const editedRequired = action === "edited" ? Number(editedRaw) : undefined;
+    if (action === "edited" && (!Number.isFinite(editedRequired) || editedRequired! < 0)) {
+      setMessage("Enter a valid headcount before saving an edit.");
+      setPending(null);
+      return;
+    }
     const response = await fetch(`/api/recommendations/${id}/action`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         action,
-        editedRequired: action === "edited" ? Number(edits[id]) : undefined,
+        editedRequired: action === "edited" ? editedRequired : undefined,
         notes: action === "edited" ? "Manager override" : undefined,
       }),
     });
     const body = (await response.json()) as { message?: string; success?: boolean };
-    setMessage(body.message ?? "");
+    setMessage(body.success ? (body.message ?? "Updated") : (body.message ?? "Could not update this gap"));
     setPending(null);
     if (body.success) router.refresh();
   }
@@ -45,10 +52,10 @@ export function ApprovalList({
     <div className="space-y-6">
       {message && <p className="text-sm text-accent">{message}</p>}
       {rows.map((row) => (
-        <article key={row.id} className="grid gap-4 border border-border p-5 md:grid-cols-[1.4fr_0.8fr]">
+        <article key={row.id} className="grid gap-6 border border-border p-5 lg:grid-cols-[1.4fr_1fr]">
           <div>
             <p className="text-[11px] uppercase tracking-[0.2em] text-accent">{row.role}</p>
-            <h2 className="display mt-2 text-4xl">
+            <h2 className="display mt-2 text-3xl sm:text-4xl">
               {row.delta > 0 ? `Add ${row.delta}` : `Release ${Math.abs(row.delta)}`}
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -56,25 +63,30 @@ export function ApprovalList({
             </p>
             <p className="mt-3 text-sm">{row.reasons.map((reason) => reason.label).join(" · ")}</p>
           </div>
-          <div className="flex flex-wrap items-end gap-3">
-            <Button type="button" disabled={pending === row.id} onClick={() => act(row.id, "accepted")}>
-              Accept
-            </Button>
-            <Button type="button" variant="outline" disabled={pending === row.id} onClick={() => act(row.id, "ignored")}>
-              Ignore
-            </Button>
-            <label className="text-[11px] uppercase tracking-[0.16em]">
-              Edit
-              <input
-                className="mt-2 w-20 border-b border-border bg-transparent py-1 text-base tracking-normal"
-                inputMode="numeric"
-                value={edits[row.id] ?? String(row.required)}
-                onChange={(event) => setEdits((current) => ({ ...current, [row.id]: event.target.value }))}
-              />
-            </label>
-            <Button type="button" variant="ghost" disabled={pending === row.id} onClick={() => act(row.id, "edited")}>
-              Save edit
-            </Button>
+          <div className="flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end">
+            <div className="flex flex-wrap gap-3">
+              <Button type="button" disabled={pending === row.id} onClick={() => act(row.id, "accepted")}>
+                Accept
+              </Button>
+              <Button type="button" variant="outline" disabled={pending === row.id} onClick={() => act(row.id, "ignored")}>
+                Ignore
+              </Button>
+            </div>
+            <div className="flex flex-wrap items-end gap-3 border-t border-border pt-4 sm:border-0 sm:pt-0">
+              <label className="min-w-[7rem] text-[11px] uppercase tracking-[0.16em]">
+                Edit
+                <input
+                  className="mt-2 w-full min-w-[4rem] max-w-[6rem] border-b border-border bg-transparent py-2 text-base tracking-normal"
+                  inputMode="numeric"
+                  aria-label={`Required headcount for ${row.role}`}
+                  value={edits[row.id] ?? String(row.required)}
+                  onChange={(event) => setEdits((current) => ({ ...current, [row.id]: event.target.value }))}
+                />
+              </label>
+              <Button type="button" variant="outline" disabled={pending === row.id} onClick={() => act(row.id, "edited")}>
+                Save edit
+              </Button>
+            </div>
           </div>
         </article>
       ))}

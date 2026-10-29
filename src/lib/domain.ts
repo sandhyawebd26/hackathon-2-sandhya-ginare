@@ -2,6 +2,15 @@ export type VenueType = "restaurant" | "cafe" | "hotel";
 export type Metric = "covers" | "orders";
 export type SignalKind = "weather" | "holiday" | "event";
 export type RecommendationStatus = "pending" | "accepted" | "edited" | "ignored";
+
+/** Persists manager decisions across demo serverless cold starts. */
+export type RecommendationOverride = {
+  venueId: string;
+  hourStart: string;
+  role: string;
+  status: RecommendationStatus;
+  required?: number;
+};
 export type ShiftStatus = "draft" | "published" | "swapped";
 
 export type Venue = {
@@ -169,6 +178,7 @@ export type Database = {
   signals: ExternalSignal[];
   forecasts: Forecast[];
   recommendations: Recommendation[];
+  recommendationOverrides: RecommendationOverride[];
   actions: RecommendationAction[];
   alerts: Alert[];
   imports: ImportJob[];

@@ -61,9 +61,10 @@ export function TeamEditor({
         className="grid gap-4 border border-border p-5 md:grid-cols-3"
         onSubmit={async (event) => {
           event.preventDefault();
+          const formEl = event.currentTarget;
           setPending(true);
           setMessage("");
-          const form = new FormData(event.currentTarget);
+          const form = new FormData(formEl);
           const response = await fetch("/api/team", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -74,11 +75,11 @@ export function TeamEditor({
               maxWeeklyHours: Number(form.get("hours") ?? 40),
             }),
           });
-        const body = (await response.json()) as { success?: boolean; message?: string };
-        setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not add the team member"));
-        setPending(false);
-        if (body.success) {
-            event.currentTarget.reset();
+          const body = (await response.json()) as { success?: boolean; message?: string };
+          setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not add the team member"));
+          setPending(false);
+          if (body.success) {
+            formEl.reset();
             router.refresh();
           }
         }}
