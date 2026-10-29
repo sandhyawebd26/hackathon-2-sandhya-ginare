@@ -1,3 +1,5 @@
+import { connection } from "next/server";
+
 import { gapTone, type Venue } from "@/lib/domain";
 import { addDays, dateKey, formatWhen, startOfZonedDay, zonedTimeToUtc } from "@/lib/time";
 import { requireAccount } from "@/server/auth/session";
@@ -5,6 +7,7 @@ import { ensurePipeline } from "@/server/pipeline";
 import { getStore } from "@/server/store/supabase";
 
 export async function resolveVenue(venueId?: string) {
+  await connection();
   const account = await requireAccount();
   const store = await getStore();
   const venues = (await store.listVenues()).filter((item) => account.venueIds.includes(item.id));
