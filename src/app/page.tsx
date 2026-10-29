@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+import { ShiftSenseLogo } from "@/components/brand/logo";
+import { SiteHeader } from "@/components/marketing/site-header";
 import { LiveStamp } from "@/components/theme/live-stamp";
-import { ThemeSwitch } from "@/components/theme/theme-switch";
 
 const houses = [
   {
@@ -27,21 +28,7 @@ const houses = [
 export default function HomePage() {
   return (
     <div className="min-h-full bg-background text-foreground">
-      <header className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-6 py-6">
-        <p className="display text-3xl leading-none">ShiftSense</p>
-        <nav className="hidden items-center gap-8 text-[11px] uppercase tracking-[0.22em] md:flex" aria-label="Primary">
-          <a href="#service">Service</a>
-          <a href="#houses">Houses</a>
-          <a href="#week">The week</a>
-          <Link href="/login">Sign in</Link>
-        </nav>
-        <div className="flex items-center gap-6">
-          <ThemeSwitch />
-          <Link href="/signup" className="border border-current px-4 py-3 text-[11px] uppercase tracking-[0.22em]">
-            Sign up
-          </Link>
-        </div>
-      </header>
+      <SiteHeader />
 
       <section className="relative min-h-[88vh] text-[#f4efe6]">
         <img
@@ -50,9 +37,9 @@ export default function HomePage() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/35 to-black/25" />
-        <div className="relative flex min-h-[88vh] flex-col justify-end px-6 py-16 md:px-16 md:py-20">
+        <div className="relative flex min-h-[88vh] flex-col justify-end px-4 py-14 sm:px-6 sm:py-16 md:px-16 md:py-20">
           <p className="text-[11px] uppercase tracking-[0.28em] text-[#d4bc8a]">This is ShiftSense</p>
-          <h1 className="display mt-6 max-w-4xl text-6xl leading-[0.9] md:text-8xl">A quieter way to staff the room.</h1>
+          <h1 className="display mt-6 max-w-4xl text-4xl leading-[0.9] sm:text-6xl md:text-8xl">A quieter way to staff the room.</h1>
           <p className="mt-6 max-w-md text-base leading-7 text-[#f4efe6]/85">
             Hospitality still rosters by last week&apos;s habit. ShiftSense reads demand, then tells you how many of each role the next service actually needs.
           </p>
@@ -142,8 +129,8 @@ export default function HomePage() {
         </div>
       </section>
 
-      <footer className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-6 border-t border-border px-6 py-12 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-        <p className="display text-3xl tracking-normal text-foreground normal-case">ShiftSense</p>
+      <footer className="mx-auto flex max-w-6xl flex-wrap items-end justify-between gap-6 border-t border-border px-4 py-12 sm:px-6 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
+        <ShiftSenseLogo href="/" size="lg" />
         <Link href="/login">Sign in</Link>
         <Link href="/signup">Create an account</Link>
       </footer>

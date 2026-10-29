@@ -21,6 +21,12 @@ export const metadata: Metadata = {
     template: "%s · ShiftSense",
   },
   description: "AI workforce planning for restaurants, cafés, and hotels.",
+  applicationName: "ShiftSense",
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [{ url: "/shiftsense-icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/shiftsense-icon.svg"],
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

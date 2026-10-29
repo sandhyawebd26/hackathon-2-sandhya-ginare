@@ -3,6 +3,7 @@ import { Suspense } from "react";
 
 import { DemandChart } from "@/components/ops/demand-chart";
 import { Heading } from "@/components/ops/heading";
+import { WeekBriefing } from "@/components/ops/week-briefing";
 import { formatMoney } from "@/lib/time";
 import { loadDashboard } from "@/server/queries";
 
@@ -31,6 +32,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<{ venu
         title="The next seven services."
         copy="Demand is a cover-hour index: each hour is predicted on its own, then summed for the day. It is workload, not unique guests."
       />
+      <WeekBriefing venueId={data.venue.id} />
       <dl className="mb-10 grid gap-px bg-border sm:grid-cols-2 lg:grid-cols-4">
         {[
           ["Peak", data.peak ? `${data.peak.covers} covers` : "—", data.peak?.label ?? ""],
@@ -40,7 +42,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<{ venu
         ].map(([label, value, note]) => (
           <div key={label} className="bg-background p-5">
             <dt className="text-[11px] uppercase tracking-[0.2em] text-accent">{label}</dt>
-            <dd className="display mt-3 text-4xl">{value}</dd>
+            <dd className="display mt-3 text-3xl sm:text-4xl">{value}</dd>
             <p className="mt-2 text-sm text-muted-foreground">{note}</p>
           </div>
         ))}

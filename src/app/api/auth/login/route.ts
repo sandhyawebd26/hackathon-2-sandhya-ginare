@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { authenticate, setSession, warmDemoSessionFromCookies } from "@/server/auth/session";
+import { authenticate, setSession, syncDemoSessionBundle, warmDemoSessionFromCookies } from "@/server/auth/session";
 import { fail, ok, readJson } from "@/server/http";
 import { memoryStore } from "@/server/store/memory";
 
@@ -19,6 +19,7 @@ export async function POST(request: Request) {
     const venue = venueId ? await memoryStore.getVenue(venueId) : null;
     if (!venue) return fail("Your venue is not available on this server. Sign up again or use Supabase mode.", 503);
     await setSession(account, venue);
+    await syncDemoSessionBundle(memoryStore, account, venue);
     return ok({ name: account.name });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not sign in", 400);

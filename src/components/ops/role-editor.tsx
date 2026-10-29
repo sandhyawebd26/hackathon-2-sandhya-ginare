@@ -20,7 +20,7 @@ export function RoleEditor({ venueId, roles }: { venueId: string; roles: RoleCon
       body: JSON.stringify({ ...role, venueId }),
     });
     const body = (await response.json()) as { message?: string; success?: boolean };
-    setMessage(body.message ?? "");
+    setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not save the role"));
     setPending(false);
     if (body.success) router.refresh();
   }

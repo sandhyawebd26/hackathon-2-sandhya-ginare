@@ -1,11 +1,12 @@
 import { Suspense } from "react";
 
+import { ShiftSenseLogo } from "@/components/brand/logo";
 import { OpsChrome } from "@/components/ops/chrome";
 import { resolveVenue } from "@/server/queries";
 
 export default function OpsLayout({ children }: { children: React.ReactNode }) {
   return (
-    <Suspense fallback={<div className="px-6 py-16 display text-6xl">ShiftSense</div>}>
+    <Suspense fallback={<div className="flex min-h-dvh items-center justify-center px-6 py-16"><ShiftSenseLogo href="/dashboard" size="lg" /></div>}>
       <OpsFrame>{children}</OpsFrame>
     </Suspense>
   );

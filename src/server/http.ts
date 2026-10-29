@@ -6,6 +6,14 @@ export function fail(message: string, status = 400, errors: string[] = []) {
   return Response.json({ success: false, message, errors }, { status });
 }
 
+export function formatError(error: unknown) {
+  if (error && typeof error === "object" && "issues" in error) {
+    const issues = (error as { issues: { path: (string | number)[]; message: string }[] }).issues;
+    return issues.map((issue) => `${issue.path.join(".") || "body"}: ${issue.message}`).join(" ");
+  }
+  return error instanceof Error ? error.message : "Request failed";
+}
+
 export function assertCron(request: Request) {
   const secret = process.env.CRON_SECRET;
   if (!secret) {

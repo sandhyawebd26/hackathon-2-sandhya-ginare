@@ -9,6 +9,8 @@ import {
   SESSION_BUNDLE_COOKIE,
 } from "@/server/auth/session-cookie";
 import { findAccount, findAccountByEmail, insertAccount } from "@/server/store/memory";
+import { restoreVenueSnapshot } from "@/server/store/demo-restore";
+import type { DataStore } from "@/server/store/types";
 
 const COOKIE = "ss_user";
 
@@ -39,12 +41,24 @@ export async function setSession(account: Account, venue: Venue) {
   const jar = await cookies();
   jar.set(COOKIE, account.id, cookieOptions());
   if (process.env.DATA_SOURCE !== "supabase") {
-    jar.set(
-      SESSION_BUNDLE_COOKIE,
-      encodeSessionBundle({ v: 1, account, venue }),
-      cookieOptions(),
-    );
+    jar.set(SESSION_BUNDLE_COOKIE, encodeSessionBundle({ v: 2, account, venue }), cookieOptions());
   }
+}
+
+export async function syncDemoSessionBundle(store: DataStore, account: Account, venue: Venue) {
+  if (process.env.DATA_SOURCE === "supabase") return;
+  const roleConfigs = await store.listRoleConfigs(venue.id);
+  const staff = await store.listStaff(venue.id);
+  const horizon = new Date(Date.now() + 86_400_000 * 60).toISOString();
+  const events = (await store.listSignals(venue.id, new Date(0).toISOString(), horizon)).filter(
+    (row) => row.kind === "event",
+  );
+  const jar = await cookies();
+  jar.set(
+    SESSION_BUNDLE_COOKIE,
+    encodeSessionBundle({ v: 2, account, venue, roleConfigs, staff, events }),
+    cookieOptions(),
+  );
 }
 
 export async function clearSession() {
@@ -74,6 +88,14 @@ async function rehydrateDemoSession(userId: string) {
     account = findAccount(bundle.account.id) ?? bundle.account;
   }
 
+  if (bundle.v === 2 && (bundle.roleConfigs?.length ?? 0) > 0) {
+    restoreVenueSnapshot(
+      bundle.venue,
+      bundle.roleConfigs ?? [],
+      bundle.staff ?? [],
+      bundle.events ?? [],
+    );
+  }
   await materializeVenue(bundle.venue);
   return account;
 }

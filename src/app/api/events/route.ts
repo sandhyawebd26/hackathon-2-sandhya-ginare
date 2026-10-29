@@ -1,9 +1,16 @@
 import { z } from "zod";
 
 import { parseEventNote } from "@/server/ai/parse-event";
-import { fail, ok, readJson } from "@/server/http";
+import { syncDemoSessionBundle } from "@/server/auth/session";
+import { fail, formatError, ok, readJson } from "@/server/http";
 import { replan } from "@/server/pipeline";
 import { resolveVenue } from "@/server/queries";
+
+function optionalNumber(value: unknown) {
+  if (value === undefined || value === null || value === "") return undefined;
+  const number = typeof value === "number" ? value : Number(value);
+  return Number.isFinite(number) ? number : undefined;
+}
 
 const bodySchema = z.object({
   venueId: z.string().uuid(),
@@ -11,14 +18,14 @@ const bodySchema = z.object({
   startsAt: z.string().datetime().optional(),
   endsAt: z.string().datetime().optional(),
   partySize: z.number().int().positive().max(500).optional(),
-  impactMultiplier: z.number().min(0.5).max(2.5).optional(),
+  impactMultiplier: z.preprocess(optionalNumber, z.number().min(0.5).max(2.5).optional()),
   note: z.string().max(500).optional(),
 });
 
 export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
-    const { store, venue } = await resolveVenue(body.venueId);
+    const { store, venue, account } = await resolveVenue(body.venueId);
     if (venue.id !== body.venueId) return fail("Venue not found", 404);
     const parsed = body.note ? await parseEventNote(body.note, venue.timezone) : null;
     const title = body.title ?? parsed?.title;
@@ -37,8 +44,9 @@ export async function POST(request: Request) {
       payload: { partySize: body.partySize ?? parsed?.partySize ?? "" },
     });
     await replan(store, venue);
+    await syncDemoSessionBundle(store, account, venue);
     return ok(signal, "Event added and the floor plan recalculated");
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not add the event", 400);
+    return fail(formatError(error), 400);
   }
 }

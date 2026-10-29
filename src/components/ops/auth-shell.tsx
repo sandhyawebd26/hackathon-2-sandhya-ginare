@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { ShiftSenseLogo } from "@/components/brand/logo";
 import { ThemeSwitch } from "@/components/theme/theme-switch";
 
 type AuthImage = {
@@ -72,16 +73,14 @@ export function AuthShell({
         </div>
 
         <div
-          className={`mx-auto flex w-full flex-col justify-center px-6 py-12 lg:max-w-none lg:px-14 lg:py-16 xl:px-20 ${wide ? "max-w-3xl" : "max-w-xl"}`}
+          className={`mx-auto flex w-full flex-col justify-center px-4 py-10 sm:px-6 sm:py-12 lg:max-w-none lg:px-14 lg:py-16 xl:px-20 ${wide ? "max-w-3xl" : "max-w-xl"}`}
         >
-          <div className="mb-8 flex items-center justify-between">
-            <Link href="/" className="display text-3xl">
-              ShiftSense
-            </Link>
+          <div className="mb-8 flex items-center justify-between gap-4">
+            <ShiftSenseLogo href="/" size="lg" />
             <ThemeSwitch />
           </div>
           <p className="text-[11px] uppercase tracking-[0.28em] text-accent">{kicker}</p>
-          <h1 className="display mt-3 text-6xl leading-[0.92]">{title}</h1>
+          <h1 className="display mt-3 text-4xl leading-[0.92] sm:text-5xl lg:text-6xl">{title}</h1>
           {description ? <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">{description}</p> : null}
           {children}
           <Link href={footer.href} className="mt-8 text-[11px] uppercase tracking-[0.18em]">
