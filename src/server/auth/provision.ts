@@ -59,10 +59,19 @@ export async function provisionVenue(input: SignupInput): Promise<Venue> {
     openingHour: hours.openingHour,
     closingHour: hours.closingHour,
   };
-  const state = memoryStore;
-  insertVenue(venue);
+  await materializeVenue(venue);
+  return venue;
+}
 
-  const catalog = roleCatalog(input.businessType);
+/** (Re)build roles, staff, sales, forecast, and roster for a venue in demo memory. */
+export async function materializeVenue(venue: Venue) {
+  const state = memoryStore;
+  const existing = await state.getVenue(venue.id);
+  if (!existing) insertVenue(venue);
+  const roles = await state.listRoleConfigs(venue.id);
+  if (roles.length > 0) return;
+
+  const catalog = roleCatalog(venue.venueType);
   let nameIndex = 0;
   for (const template of catalog) {
     await state.saveRole({
@@ -93,7 +102,6 @@ export async function provisionVenue(input: SignupInput): Promise<Venue> {
   await seedBaseline(venue);
   await replan(state, venue);
   await buildWeeklyRoster(state, venue);
-  return venue;
 }
 
 async function seedBaseline(venue: Venue) {
