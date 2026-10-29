@@ -74,10 +74,10 @@ export function TeamEditor({
               maxWeeklyHours: Number(form.get("hours") ?? 40),
             }),
           });
-          const body = (await response.json()) as { success?: boolean; message?: string };
-          setMessage(body.message ?? "");
-          setPending(false);
-          if (body.success) {
+        const body = (await response.json()) as { success?: boolean; message?: string };
+        setMessage(body.success ? (body.message ?? "Saved") : (body.message ?? "Could not add the team member"));
+        setPending(false);
+        if (body.success) {
             event.currentTarget.reset();
             router.refresh();
           }

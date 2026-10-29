@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { EventForm } from "@/components/ops/event-form";
 import { Heading } from "@/components/ops/heading";
+import { SignalsBriefing } from "@/components/ops/signals-briefing";
 import { addDays, formatWhen, startOfZonedDay } from "@/lib/time";
 import { resolveVenue } from "@/server/queries";
 
@@ -32,6 +33,7 @@ async function EventsContent({ searchParams }: { searchParams: Promise<{ venue?:
         title="A note becomes a headcount."
         copy="Holidays come from the venue's country. Weather comes from Open-Meteo. Everything else is entered here, then the week is replanned."
       />
+      <SignalsBriefing venueId={venue.id} />
       <EventForm venueId={venue.id} />
       <ul className="mt-10 divide-y divide-border border-y border-border">
         {notable.map((signal) => (

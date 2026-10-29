@@ -10,7 +10,7 @@ export function Heading({
   return (
     <header className="mb-10 max-w-3xl">
       <p className="text-[11px] uppercase tracking-[0.32em] text-accent">{kicker}</p>
-      <h1 className="display mt-3 text-5xl leading-none md:text-6xl">{title}</h1>
+      <h1 className="display mt-3 text-4xl leading-none sm:text-5xl md:text-6xl">{title}</h1>
       {copy && <p className="mt-4 max-w-xl text-sm leading-7 text-muted-foreground">{copy}</p>}
     </header>
   );

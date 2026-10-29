@@ -69,7 +69,12 @@ export async function materializeVenue(venue: Venue) {
   const existing = await state.getVenue(venue.id);
   if (!existing) insertVenue(venue);
   const roles = await state.listRoleConfigs(venue.id);
-  if (roles.length > 0) return;
+  if (roles.length > 0) {
+    const historyFrom = addDays(startOfZonedDay(new Date(), venue.timezone), -70).toISOString();
+    const sales = await state.listSales(venue.id, historyFrom, new Date().toISOString());
+    if (sales.length === 0) await seedBaseline(venue);
+    return;
+  }
 
   const catalog = roleCatalog(venue.venueType);
   let nameIndex = 0;
@@ -104,7 +109,7 @@ export async function materializeVenue(venue: Venue) {
   await buildWeeklyRoster(state, venue);
 }
 
-async function seedBaseline(venue: Venue) {
+export async function seedBaseline(venue: Venue) {
   const today = startOfZonedDay(new Date(), venue.timezone);
   const scale = venue.capacity / 80;
   const rows = [];

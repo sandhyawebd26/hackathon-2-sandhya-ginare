@@ -1,7 +1,8 @@
 import { z } from "zod";
 
 import { provisionVenue } from "@/server/auth/provision";
-import { registerAccount, setSession } from "@/server/auth/session";
+import { registerAccount, setSession, syncDemoSessionBundle } from "@/server/auth/session";
+import { memoryStore } from "@/server/store/memory";
 import { fail, ok, readJson } from "@/server/http";
 
 const bodySchema = z.object({
@@ -25,6 +26,7 @@ export async function POST(request: Request) {
       venueId: venue.id,
     });
     await setSession(account, venue);
+    await syncDemoSessionBundle(memoryStore, account, venue);
     return ok({ venueId: venue.id, name: venue.name });
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not create the account", 400);

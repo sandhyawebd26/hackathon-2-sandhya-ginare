@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { fail, ok, readJson } from "@/server/http";
+import { syncDemoSessionBundle } from "@/server/auth/session";
+import { fail, formatError, ok, readJson } from "@/server/http";
 import { resolveVenue } from "@/server/queries";
 
 const bodySchema = z.object({
@@ -13,7 +14,7 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
-    const { store, venue } = await resolveVenue(body.venueId);
+    const { store, venue, account } = await resolveVenue(body.venueId);
     const config = (await store.listRoleConfigs(venue.id)).find((row) => row.role === body.role && row.enabled);
     if (!config) return fail("Choose an active role", 422);
     const member = await store.saveStaff({
@@ -25,8 +26,9 @@ export async function POST(request: Request) {
       maxWeeklyHours: body.maxWeeklyHours,
       skills: [body.role],
     });
+    await syncDemoSessionBundle(store, account, venue);
     return ok(member, "Team member added");
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not add the team member", 400);
+    return fail(formatError(error), 400);
   }
 }

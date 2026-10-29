@@ -73,7 +73,13 @@
 
 html {
   background: var(--background);
-  font-size: 18px;
+  font-size: 16px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 18px;
+  }
 }
 
 body {
@@ -82,6 +88,7 @@ body {
   font-family: var(--font-outfit), sans-serif;
   font-size: 1rem;
   line-height: 1.6;
+  overflow-x: hidden;
 }
 
 /* Labels stay in the editorial voice. Supporting copy is a full 18px. */

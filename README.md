@@ -14,6 +14,8 @@ The interface follows the editorial hotel language of [Augustine](https://august
 
 Headcount is never taken from the language model.
 
+See [docs/SIGNALS_AND_AI.md](docs/SIGNALS_AND_AI.md) for weather (`Open-Meteo`), holidays (`date-holidays`), events, WCMA forecast, and Gemini use cases.
+
 ## Run
 
 ```bash

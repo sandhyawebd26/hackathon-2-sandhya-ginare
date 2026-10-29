@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-import { fail, ok, readJson } from "@/server/http";
+import { syncDemoSessionBundle } from "@/server/auth/session";
+import { fail, formatError, ok, readJson } from "@/server/http";
+import { replan } from "@/server/pipeline";
 import { resolveVenue } from "@/server/queries";
 
 const bodySchema = z.object({
@@ -17,7 +19,7 @@ const bodySchema = z.object({
 export async function POST(request: Request) {
   try {
     const body = bodySchema.parse(await readJson(request));
-    const { store, venue } = await resolveVenue(body.venueId);
+    const { store, venue, account } = await resolveVenue(body.venueId);
     const existing = (await store.listRoleConfigs(venue.id)).find((row) => row.id === body.id);
     const saved = await store.saveRole({
       id: body.id ?? crypto.randomUUID(),
@@ -30,8 +32,10 @@ export async function POST(request: Request) {
       enabled: body.enabled,
       isCustom: existing ? existing.isCustom : true,
     });
+    await replan(store, venue);
+    await syncDemoSessionBundle(store, account, venue);
     return ok(saved, "Role saved");
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Could not save the role", 400);
+    return fail(formatError(error), 400);
   }
 }

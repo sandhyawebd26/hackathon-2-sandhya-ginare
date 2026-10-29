@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" role="img" aria-label="ShiftSense">
+  <rect width="64" height="64" fill="#161411"/>
+  <path d="M32 14c-9.94 0-18 8.06-18 18 0 6.2 3.15 11.66 7.94 14.86L32 50l10.06-3.14C46.85 43.66 50 38.2 50 32c0-9.94-8.06-18-18-18Z" stroke="#d4bc8a" stroke-width="2.5" stroke-linejoin="round"/>
+  <path d="M32 22v10l7 4" stroke="#f4efe6" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="32" cy="32" r="2.5" fill="#d4bc8a"/>
+</svg>

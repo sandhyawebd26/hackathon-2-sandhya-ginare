@@ -97,9 +97,9 @@ export function StaffingBoard({
       <Dialog.Root open={Boolean(active)} onOpenChange={(openState) => !openState && setActive(null)}>
         <Dialog.Portal>
           <Dialog.Overlay className="fixed inset-0 bg-hero/60" />
-          <Dialog.Content className="fixed inset-y-0 right-0 w-full max-w-md overflow-y-auto border-l border-border bg-background p-8">
+          <Dialog.Content className="fixed inset-x-0 bottom-0 max-h-[90dvh] w-full overflow-y-auto border-t border-border bg-background p-6 sm:inset-y-0 sm:inset-x-auto sm:right-0 sm:max-h-none sm:max-w-md sm:border-l sm:border-t-0 sm:p-8">
             <p className="text-[11px] uppercase tracking-[0.28em] text-accent">Explain this hour</p>
-            <Dialog.Title className="display mt-3 text-5xl leading-none">
+            <Dialog.Title className="display mt-3 text-4xl leading-none sm:text-5xl">
               {active?.role} · {active?.required}
             </Dialog.Title>
             <Dialog.Description className="mt-4 text-sm leading-7 text-muted-foreground">

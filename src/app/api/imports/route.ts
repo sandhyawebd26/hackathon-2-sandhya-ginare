@@ -1,12 +1,13 @@
 import { importRows, importSchema } from "@/server/ingestion/csv";
-import { fail, ok, readJson } from "@/server/http";
+import { syncDemoSessionBundle } from "@/server/auth/session";
+import { fail, formatError, ok, readJson } from "@/server/http";
 import { replan } from "@/server/pipeline";
 import { resolveVenue } from "@/server/queries";
 
 export async function POST(request: Request) {
   try {
     const input = importSchema.parse(await readJson(request));
-    const { store, venue } = await resolveVenue(input.venueId);
+    const { store, venue, account } = await resolveVenue(input.venueId);
     if (venue.id !== input.venueId) return fail("Venue not found", 404);
     const imported = importRows(venue, input);
     const count = input.kind === "sales" ? imported.sales.length : imported.reservations.length;
@@ -32,8 +33,9 @@ export async function POST(request: Request) {
       createdAt: new Date().toISOString(),
     });
     await replan(store, venue);
+    await syncDemoSessionBundle(store, account, venue);
     return ok(job, `Imported ${count} rows`);
   } catch (error) {
-    return fail(error instanceof Error ? error.message : "Import failed", 400);
+    return fail(formatError(error), 400);
   }
 }
