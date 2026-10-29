@@ -1,26 +1,158 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  color-scheme: light;
+  --background: #f3eee6;
+  --foreground: #1b1916;
+  --card: #fbf7f1;
+  --card-foreground: #1b1916;
+  --muted: #e7dfd2;
+  --muted-foreground: #4e4840;
+  --border: #ddd4c6;
+  --primary: #1b1916;
+  --primary-foreground: #f6f1e8;
+  --accent: #8c6840;
+  --accent-foreground: #fbf7f1;
+  --ring: #8c6840;
+  --optimal: #2f6b4f;
+  --under: #a15c32;
+  --over: #3d6478;
+  --hero: #161411;
+  --hero-foreground: #f4efe6;
+  --radius: 0px;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --background: #100e0c;
+  --foreground: #f3eee6;
+  --card: #191714;
+  --card-foreground: #f3eee6;
+  --muted: #26221e;
+  --muted-foreground: #d2c9be;
+  --border: #3a342c;
+  --primary: #f3eee6;
+  --primary-foreground: #161411;
+  --accent: #d4bc8a;
+  --accent-foreground: #161411;
+  --ring: #d4bc8a;
+  --optimal: #9dccb3;
+  --under: #e2b08a;
+  --over: #a9c9d6;
+  --hero: #0c0b0a;
+  --hero-foreground: #f4efe6;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-optimal: var(--optimal);
+  --color-under: var(--under);
+  --color-over: var(--over);
+  --color-hero: var(--hero);
+  --color-hero-foreground: var(--hero-foreground);
+  --font-sans: var(--font-outfit);
+  --font-display: var(--font-cormorant);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  border-color: var(--border);
+}
+
+html {
+  background: var(--background);
+  font-size: 18px;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-outfit), sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/* Labels stay in the editorial voice. Supporting copy is a full 18px. */
+.text-\[11px\] {
+  font-size: 0.9375rem;
+  line-height: 1.45;
+}
+
+p.text-sm,
+li.text-sm,
+.text-sm {
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.uppercase {
+  letter-spacing: 0.08em;
+}
+
+input,
+textarea {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.menu {
+  appearance: none;
+  width: 100%;
+  cursor: pointer;
+  border: 1px solid var(--border);
+  background-color: var(--card);
+  color: var(--foreground);
+  padding: 0.75rem 2.75rem 0.75rem 0.9rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-transform: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, currentColor 50%),
+    linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position:
+    calc(100% - 1.15rem) 55%,
+    calc(100% - 0.8rem) 55%;
+  background-size: 0.4rem 0.4rem, 0.4rem 0.4rem;
+  background-repeat: no-repeat;
+}
+
+.menu:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+.menu.w-auto {
+  width: auto;
+}
+
+.menu option {
+  background: var(--card);
+  color: var(--foreground);
+}
+
+::selection {
+  background: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.grain {
+  background-image: radial-gradient(rgba(255, 255, 255, 0.14) 0.6px, transparent 0.6px);
+  background-size: 4px 4px;
+}
+
+.display {
+  font-family: var(--font-cormorant), Georgia, serif;
 }

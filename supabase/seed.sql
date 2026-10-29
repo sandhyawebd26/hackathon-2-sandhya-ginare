@@ -1,0 +1,2 @@
+-- Accounts, venues, and roles are created when a manager signs up.
+-- Apply the migrations first, then use the app's create-account form.
