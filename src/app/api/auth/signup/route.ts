@@ -27,7 +27,10 @@ export async function POST(request: Request) {
     });
     await setSession(account, venue);
     await syncDemoSessionBundle(memoryStore, account, venue);
-    return ok({ venueId: venue.id, name: venue.name });
+    return ok(
+      { venueId: venue.id, name: venue.name },
+      `${venue.name} is ready — baseline sales, forecast, and roster are loaded.`,
+    );
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not create the account", 400);
   }

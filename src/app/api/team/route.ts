@@ -28,7 +28,10 @@ export async function POST(request: Request) {
       skills: [body.role],
     });
     await syncDemoSessionBundle(store, account, venue);
-    return ok(member, "Team member added");
+    return ok(
+      member,
+      `${body.name.trim()} added as ${body.role.trim()}. Rebuild roster on Roster to assign shifts.`,
+    );
   } catch (error) {
     return fail(formatError(error), 400);
   }

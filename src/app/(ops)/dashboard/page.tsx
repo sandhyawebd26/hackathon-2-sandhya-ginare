@@ -47,7 +47,7 @@ async function DashboardContent({ searchParams }: { searchParams: Promise<{ venu
           </div>
         ))}
       </dl>
-      <section className="border border-border p-5">
+      <section className="min-w-0 overflow-hidden border border-border p-4 sm:p-5">
         <p className="mb-4 text-[11px] uppercase tracking-[0.2em] text-muted-foreground">Daily demand</p>
         <DemandChart points={data.daily.map((point) => ({ label: point.day.slice(5), predicted: point.predicted }))} />
       </section>

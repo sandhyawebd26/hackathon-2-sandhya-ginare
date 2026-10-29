@@ -91,6 +91,15 @@ body {
   overflow-x: hidden;
 }
 
+.safe-area-pad {
+  padding-left: max(0px, env(safe-area-inset-left));
+  padding-right: max(0px, env(safe-area-inset-right));
+}
+
+.safe-area-pad-bottom {
+  padding-bottom: max(0px, env(safe-area-inset-bottom));
+}
+
 /* Labels stay in the editorial voice. Supporting copy is a full 18px. */
 .text-\[11px\] {
   font-size: 0.9375rem;

@@ -20,7 +20,12 @@ export async function POST(request: Request) {
     } catch (syncError) {
       console.error("syncDemoSessionBundle failed after roster build", syncError);
     }
-    return ok({ shifts: count }, "Weekly roster rebuilt");
+    return ok(
+      { shifts: count },
+      count > 0
+        ? `Roster rebuilt — ${count} shift${count === 1 ? "" : "s"} assigned for the next 7 days. Staffing scheduled counts updated.`
+        : "Roster rebuild finished, but no shifts were assigned. Add team members or check role settings.",
+    );
   } catch (error) {
     return fail(error instanceof Error ? error.message : "Could not build the roster", 400);
   }

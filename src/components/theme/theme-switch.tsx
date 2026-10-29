@@ -10,7 +10,7 @@ function subscribe(onStoreChange: () => void) {
   return () => observer.disconnect();
 }
 
-export function ThemeSwitch() {
+export function ThemeSwitch({ className }: { className?: string }) {
   const dark = useSyncExternalStore(
     subscribe,
     () => document.documentElement.getAttribute("data-theme") === "dark",
@@ -23,12 +23,19 @@ export function ThemeSwitch() {
   }
 
   return (
-    <div className="flex items-center gap-3 text-[11px] uppercase tracking-[0.2em]" role="group" aria-label="Color theme">
+    <div
+      className={cn("flex items-center gap-2 text-[11px] uppercase tracking-[0.2em] sm:gap-3", className)}
+      role="group"
+      aria-label="Color theme"
+    >
       <button
         type="button"
         aria-pressed={!dark}
         onClick={() => choose(false)}
-        className={cn("border-b pb-1", !dark ? "border-accent text-foreground" : "border-transparent text-muted-foreground")}
+        className={cn(
+          "min-h-11 min-w-11 border-b px-1 pb-1 sm:min-w-0",
+          !dark ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
+        )}
       >
         Light
       </button>
@@ -36,7 +43,10 @@ export function ThemeSwitch() {
         type="button"
         aria-pressed={dark}
         onClick={() => choose(true)}
-        className={cn("border-b pb-1", dark ? "border-accent text-foreground" : "border-transparent text-muted-foreground")}
+        className={cn(
+          "min-h-11 min-w-11 border-b px-1 pb-1 sm:min-w-0",
+          dark ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
+        )}
       >
         Dark
       </button>

@@ -19,6 +19,7 @@ import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 
 import { ShiftSenseLogo } from "@/components/brand/logo";
 import { ThemeSwitch } from "@/components/theme/theme-switch";
+import { opsDrawerMediaQuery } from "@/lib/breakpoints";
 import { cn } from "@/lib/utils";
 
 const links: { href: string; label: string; icon: LucideIcon }[] = [
@@ -39,8 +40,8 @@ function subscribeSidebar(onStoreChange: () => void) {
   return () => observer.disconnect();
 }
 
-function subscribeMobile(onStoreChange: () => void) {
-  const mq = window.matchMedia("(max-width: 767px)");
+function subscribeDrawer(onStoreChange: () => void) {
+  const mq = window.matchMedia(opsDrawerMediaQuery());
   mq.addEventListener("change", onStoreChange);
   return () => mq.removeEventListener("change", onStoreChange);
 }
@@ -72,13 +73,13 @@ export function OpsChrome({
     () => true,
   );
 
-  const isMobile = useSyncExternalStore(
-    subscribeMobile,
-    () => window.matchMedia("(max-width: 767px)").matches,
-    () => false,
+  const drawerNav = useSyncExternalStore(
+    subscribeDrawer,
+    () => window.matchMedia(opsDrawerMediaQuery()).matches,
+    () => true,
   );
 
-  const sidebarOpen = isMobile ? mobileNav : !collapsed;
+  const sidebarOpen = drawerNav ? mobileNav : !collapsed;
 
   useEffect(() => {
     if (!mobileNav) return;
@@ -94,8 +95,8 @@ export function OpsChrome({
   }, [pathname]);
 
   useEffect(() => {
-    if (!isMobile) setMobileNav(false);
-  }, [isMobile]);
+    if (!drawerNav) setMobileNav(false);
+  }, [drawerNav]);
 
   useEffect(() => {
     if (!venue) return;
@@ -113,7 +114,7 @@ export function OpsChrome({
   }
 
   const toggleSidebar = useCallback(() => {
-    if (isMobile) {
+    if (drawerNav) {
       setMobileNav((value) => !value);
       return;
     }
@@ -121,33 +122,33 @@ export function OpsChrome({
     localStorage.setItem("shiftsense-sidebar", next);
     if (next === "closed") document.documentElement.setAttribute("data-sidebar", "closed");
     else document.documentElement.removeAttribute("data-sidebar");
-  }, [collapsed, isMobile]);
+  }, [collapsed, drawerNav]);
 
   const closeMobileNav = useCallback(() => setMobileNav(false), []);
 
   const unread = alerts.filter((alert) => !alert.readAt);
-  const showLabels = isMobile || !collapsed;
+  const showLabels = drawerNav || !collapsed;
 
   return (
     <div className="flex min-h-dvh bg-background text-foreground">
-      {isMobile && mobileNav ? (
+      {drawerNav && mobileNav ? (
         <button
           type="button"
           aria-label="Close navigation"
-          className="fixed inset-0 z-40 bg-hero/55 md:hidden"
+          className="fixed inset-0 z-40 bg-hero/55 lg:hidden"
           onClick={closeMobileNav}
         />
       ) : null}
 
       <aside
         className={cn(
-          "z-50 flex h-dvh shrink-0 flex-col overflow-y-auto border-r border-border bg-background transition-[transform,width] duration-200",
-          isMobile ? "fixed inset-y-0 left-0 w-72 shadow-xl" : "sticky top-0",
-          isMobile && !mobileNav && "-translate-x-full",
-          isMobile && mobileNav && "translate-x-0",
-          !isMobile && (collapsed ? "w-[72px]" : "w-72"),
+          "z-50 flex h-dvh shrink-0 flex-col overflow-y-auto border-r border-border bg-background transition-[transform,width] duration-200 safe-area-pad",
+          drawerNav ? "fixed inset-y-0 left-0 w-[min(100vw-3rem,18rem)] shadow-xl" : "sticky top-0",
+          drawerNav && !mobileNav && "-translate-x-full",
+          drawerNav && mobileNav && "translate-x-0",
+          !drawerNav && (collapsed ? "w-[72px]" : "w-72"),
         )}
-        aria-hidden={isMobile && !mobileNav ? true : undefined}
+        aria-hidden={drawerNav && !mobileNav ? true : undefined}
       >
         <div className={cn("flex items-center gap-2 px-4 py-4", !showLabels && "justify-center px-2")}>
           <button
@@ -156,7 +157,7 @@ export function OpsChrome({
             aria-label={sidebarOpen ? "Close sidebar" : "Open sidebar"}
             className="inline-flex min-h-11 min-w-11 items-center justify-center p-1"
           >
-            {isMobile && mobileNav ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
+            {drawerNav && mobileNav ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
           </button>
           {showLabels ? <ShiftSenseLogo href={hrefFor("/dashboard")} size="md" className="min-w-0 truncate" /> : null}
         </div>
@@ -212,8 +213,8 @@ export function OpsChrome({
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6 sm:py-4">
-          <div className="flex min-w-0 items-center gap-3 md:hidden">
+        <header className="safe-area-pad flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3 sm:px-6 sm:py-4">
+          <div className="flex min-w-0 items-center gap-3 lg:hidden">
             <button
               type="button"
               aria-label="Open navigation"
@@ -224,7 +225,7 @@ export function OpsChrome({
             </button>
             <ShiftSenseLogo href={hrefFor("/dashboard")} showWordmark={false} size="sm" />
           </div>
-          <div className="ml-auto flex flex-wrap items-center justify-end gap-3 sm:gap-5">
+          <div className="flex w-full min-w-0 flex-wrap items-center justify-end gap-2 sm:ml-auto sm:w-auto sm:gap-5">
             {venues.length > 1 && (
               <select
                 aria-label="Venue"
@@ -234,7 +235,7 @@ export function OpsChrome({
                   next.set("venue", event.target.value);
                   router.push(`${pathname}?${next.toString()}`);
                 }}
-                className="menu max-w-[min(100%,14rem)] w-auto text-sm"
+                className="menu max-w-full flex-1 text-sm sm:max-w-[14rem] sm:flex-none"
               >
                 {venues.map((item) => (
                   <option key={item.id} value={item.id}>
@@ -243,13 +244,13 @@ export function OpsChrome({
                 ))}
               </select>
             )}
-            <ThemeSwitch />
+            <ThemeSwitch className="shrink-0" />
             <button
               type="button"
-              className="min-h-11 px-1 text-[11px] uppercase tracking-[0.16em]"
+              className="min-h-11 shrink-0 px-1 text-[11px] uppercase tracking-[0.16em]"
               onClick={() => setOpenAlerts((value) => !value)}
             >
-              Alerts {unread.length ? `(${unread.length})` : ""}
+              Alerts{unread.length ? ` (${unread.length})` : ""}
             </button>
           </div>
         </header>

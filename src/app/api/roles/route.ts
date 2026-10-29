@@ -35,7 +35,17 @@ export async function POST(request: Request) {
     });
     await replan(store, venue);
     await syncDemoSessionBundle(store, account, venue);
-    return ok(saved, "Role saved");
+    let message: string;
+    if (!existing) {
+      message = `${body.role} added. Forecast, staffing, and Approvals recalculated.`;
+    } else if (existing.enabled !== body.enabled) {
+      message = body.enabled
+        ? `${body.role} is active again — included in staffing requirements.`
+        : `${body.role} turned off — excluded from new requirements.`;
+    } else {
+      message = `${body.role} saved. Forecast, staffing, and Approvals recalculated.`;
+    }
+    return ok(saved, message);
   } catch (error) {
     return fail(formatError(error), 400);
   }

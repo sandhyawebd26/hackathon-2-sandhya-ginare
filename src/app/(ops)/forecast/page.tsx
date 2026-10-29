@@ -45,11 +45,11 @@ async function ForecastContent({ searchParams }: { searchParams: Promise<{ venue
         copy="History for the same weekday and hour (WCMA), multiplied by holidays, weather, events, and reservations."
       />
       <ContextBanner title="What you are looking at" lines={driverLines} />
-      <section className="border border-border p-5">
+      <section className="min-w-0 overflow-hidden border border-border p-4 sm:p-5">
         <DemandChart points={data.hourly.map((point) => ({ label: point.label, predicted: point.predicted }))} />
       </section>
       <p className="mt-4 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">Busiest opening hours</p>
-      <ol className="mt-3 grid gap-4 md:grid-cols-4">
+      <ol className="mt-3 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {peaks.map((peak, index) => (
           <li key={peak.hourStart} className="border border-border p-4">
             <p className="text-[11px] uppercase tracking-[0.18em] text-accent">0{index + 1}</p>
