@@ -8,6 +8,7 @@ import type {
   ImportJob,
   Recommendation,
   RecommendationAction,
+  RecommendationOverride,
   Reservation,
   SalesFact,
   Shift,
@@ -52,6 +53,8 @@ export type DataStore = {
     rows: Recommendation[],
   ): Promise<void>;
   getRecommendation(id: string): Promise<Recommendation | null>;
+  listRecommendationOverrides(venueId: string): Promise<RecommendationOverride[]>;
+  saveRecommendationOverride(row: RecommendationOverride): Promise<void>;
   actOnRecommendation(input: ActionInput): Promise<Recommendation>;
   listAlerts(venueId: string): Promise<Alert[]>;
   replaceUnreadAlerts(venueId: string, rows: Alert[]): Promise<void>;

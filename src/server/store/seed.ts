@@ -1,6 +1,6 @@
 import type { Database } from "@/lib/domain";
 
-export const STORE_VERSION = 3;
+export const STORE_VERSION = 4;
 
 export function createSeed(): Database {
   return {
@@ -15,6 +15,7 @@ export function createSeed(): Database {
     signals: [],
     forecasts: [],
     recommendations: [],
+    recommendationOverrides: [],
     actions: [],
     alerts: [],
     imports: [],

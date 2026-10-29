@@ -124,6 +124,17 @@ export const memoryStore: DataStore = {
   async getRecommendation(id) {
     return db().recommendations.find((row) => row.id === id) ?? null;
   },
+  async listRecommendationOverrides(venueId) {
+    return db().recommendationOverrides.filter((row) => row.venueId === venueId);
+  },
+  async saveRecommendationOverride(row) {
+    const rows = db().recommendationOverrides;
+    const index = rows.findIndex(
+      (item) => item.venueId === row.venueId && item.hourStart === row.hourStart && item.role === row.role,
+    );
+    if (index >= 0) rows[index] = row;
+    else rows.push(row);
+  },
   async actOnRecommendation(input: ActionInput) {
     const row = db().recommendations.find((item) => item.id === input.id);
     if (!row) throw new Error("Recommendation not found");
@@ -136,6 +147,13 @@ export const memoryStore: DataStore = {
       row.costImpact = row.delta * row.hourlyCost;
     }
     row.status = input.action;
+    await memoryStore.saveRecommendationOverride({
+      venueId: row.venueId,
+      hourStart: row.hourStart,
+      role: row.role,
+      status: input.action,
+      required: input.action === "edited" ? row.required : undefined,
+    });
     db().actions.push({
       id: crypto.randomUUID(),
       recommendationId: row.id,

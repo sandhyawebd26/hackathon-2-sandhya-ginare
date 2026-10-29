@@ -53,10 +53,11 @@ export async function syncDemoSessionBundle(store: DataStore, account: Account, 
   const events = (await store.listSignals(venue.id, new Date(0).toISOString(), horizon)).filter(
     (row) => row.kind === "event",
   );
+  const recommendationOverrides = await store.listRecommendationOverrides(venue.id);
   const jar = await cookies();
   jar.set(
     SESSION_BUNDLE_COOKIE,
-    encodeSessionBundle({ v: 2, account, venue, roleConfigs, staff, events }),
+    encodeSessionBundle({ v: 2, account, venue, roleConfigs, staff, events, recommendationOverrides }),
     cookieOptions(),
   );
 }
@@ -94,6 +95,7 @@ async function rehydrateDemoSession(userId: string) {
       bundle.roleConfigs ?? [],
       bundle.staff ?? [],
       bundle.events ?? [],
+      bundle.recommendationOverrides ?? [],
     );
   }
   await materializeVenue(bundle.venue);

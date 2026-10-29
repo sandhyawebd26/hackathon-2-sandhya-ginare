@@ -1,7 +1,14 @@
 import { createHmac, timingSafeEqual } from "crypto";
 import { gunzipSync, gzipSync } from "zlib";
 
-import type { Account, ExternalSignal, RoleConfig, StaffMember, Venue } from "@/lib/domain";
+import type {
+  Account,
+  ExternalSignal,
+  RecommendationOverride,
+  RoleConfig,
+  StaffMember,
+  Venue,
+} from "@/lib/domain";
 
 const BUNDLE = "ss_bundle";
 
@@ -12,6 +19,7 @@ export type SessionBundle = {
   roleConfigs?: RoleConfig[];
   staff?: StaffMember[];
   events?: ExternalSignal[];
+  recommendationOverrides?: RecommendationOverride[];
 };
 
 function secret() {

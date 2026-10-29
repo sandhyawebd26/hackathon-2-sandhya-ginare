@@ -162,7 +162,7 @@ export function OpsChrome({
         </div>
         <nav className="flex flex-1 flex-col gap-1 px-2 pb-4" aria-label="Admin">
           {links.map((link) => {
-            const active = pathname === link.href;
+            const active = pathname === link.href || pathname.startsWith(`${link.href}/`);
             const Icon = link.icon;
             return (
               <Link
@@ -172,12 +172,15 @@ export function OpsChrome({
                 title={link.label}
                 onClick={closeMobileNav}
                 className={cn(
-                  "flex min-h-11 items-center gap-3 border-l-2 px-3 py-2 text-[11px] uppercase tracking-[0.16em]",
-                  active ? "border-accent text-foreground" : "border-transparent text-muted-foreground",
+                  "flex min-h-11 items-center gap-3 border-l-[3px] px-3 py-2 text-[11px] uppercase tracking-[0.16em] transition-colors",
+                  active
+                    ? "border-accent bg-accent/15 font-medium text-foreground"
+                    : "border-transparent text-muted-foreground hover:bg-muted/60 hover:text-foreground",
                   !showLabels && "justify-center px-0",
+                  !showLabels && active && "bg-accent/20",
                 )}
               >
-                <Icon className="h-4 w-4 shrink-0" />
+                <Icon className={cn("h-4 w-4 shrink-0", active && "text-accent")} />
                 {showLabels ? link.label : null}
               </Link>
             );

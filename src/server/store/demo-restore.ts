@@ -1,4 +1,4 @@
-import type { ExternalSignal, RoleConfig, StaffMember, Venue } from "@/lib/domain";
+import type { ExternalSignal, RecommendationOverride, RoleConfig, StaffMember, Venue } from "@/lib/domain";
 import { insertVenue, memoryStore } from "@/server/store/memory";
 
 type MemoryGlobal = typeof globalThis & {
@@ -7,6 +7,7 @@ type MemoryGlobal = typeof globalThis & {
     roleConfigs: RoleConfig[];
     staff: StaffMember[];
     signals: ExternalSignal[];
+    recommendationOverrides: RecommendationOverride[];
   };
 };
 
@@ -19,6 +20,7 @@ export function restoreVenueSnapshot(
   roleConfigs: RoleConfig[],
   staff: StaffMember[],
   events: ExternalSignal[],
+  recommendationOverrides: RecommendationOverride[] = [],
 ) {
   void memoryStore.listVenues();
   const db = state();
@@ -27,4 +29,7 @@ export function restoreVenueSnapshot(
   db.roleConfigs = db.roleConfigs.filter((row) => row.venueId !== venue.id).concat(roleConfigs);
   db.staff = db.staff.filter((row) => row.venueId !== venue.id).concat(staff);
   db.signals = db.signals.filter((row) => !(row.venueId === venue.id && row.kind === "event")).concat(events);
+  db.recommendationOverrides = db.recommendationOverrides
+    .filter((row) => row.venueId !== venue.id)
+    .concat(recommendationOverrides);
 }

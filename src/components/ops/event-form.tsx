@@ -22,9 +22,10 @@ export function EventForm({ venueId }: { venueId: string }) {
       className="grid gap-6 border border-border p-6 md:grid-cols-2"
       onSubmit={async (event) => {
         event.preventDefault();
+        const formEl = event.currentTarget;
         setPending(true);
         setMessage("");
-        const form = new FormData(event.currentTarget);
+        const form = new FormData(formEl);
         const starts = String(form.get("startsAt") ?? "").trim();
         const title = String(form.get("title") ?? "").trim();
         const note = String(form.get("note") ?? "").trim();
@@ -44,7 +45,7 @@ export function EventForm({ venueId }: { venueId: string }) {
         setMessage(body.message ?? "Saved");
         setPending(false);
         if (body.success) {
-          event.currentTarget.reset();
+          formEl.reset();
           router.refresh();
         }
       }}
