@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
+import { StaffAvatar } from "@/components/ops/staff-avatar";
 import { Button } from "@/components/ui/button";
 import type { RoleConfig, StaffMember } from "@/lib/domain";
 
@@ -29,8 +30,9 @@ export function TeamEditor({
     <div className="space-y-8">
       <ul className="divide-y divide-border border-y border-border">
         {visible.map((person) => (
-          <li key={person.id} className="grid gap-1 py-4 md:grid-cols-3">
-            <p>{person.name}</p>
+          <li key={person.id} className="group grid gap-3 py-4 md:grid-cols-[auto_1fr_1fr_1fr] md:items-center">
+            <StaffAvatar id={person.id} name={person.name} role={person.role} size="md" />
+            <p className="font-medium">{person.name}</p>
             <p className="text-sm text-muted-foreground">{person.role}</p>
             <p className="text-sm text-muted-foreground">{person.maxWeeklyHours} hours a week</p>
           </li>

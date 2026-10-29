@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { Heading } from "@/components/ops/heading";
 import { TeamEditor } from "@/components/ops/team-editor";
+import { TeamSpotlight } from "@/components/ops/team-spotlight";
 import { resolveVenue } from "@/server/queries";
 
 export const metadata = { title: "Team" };
@@ -25,6 +26,7 @@ async function TeamContent({ searchParams }: { searchParams: Promise<{ venue?: s
         title="The people who can be rostered."
         copy="Each person holds one role and a weekly hour cap. The week is filled from this list."
       />
+      <TeamSpotlight />
       <TeamEditor venueId={venue.id} people={people} roles={roles} />
     </>
   );

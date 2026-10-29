@@ -15,9 +15,9 @@ const hospitalityGallery = [
     label: "Restaurant",
   },
   {
-    src: "/landing/cafe-morning.jpg",
-    alt: "A cafe counter in the morning",
-    label: "Café",
+    src: "/staff/team-line.jpg",
+    alt: "Kitchen and floor staff before service",
+    label: "Team",
   },
 ];
 

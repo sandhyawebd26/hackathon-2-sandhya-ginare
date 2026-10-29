@@ -2,6 +2,7 @@ import { Suspense } from "react";
 
 import { Heading } from "@/components/ops/heading";
 import { Pager } from "@/components/ops/pager";
+import { StaffAvatar } from "@/components/ops/staff-avatar";
 import { RebuildRoster } from "@/components/ops/rebuild-roster";
 import { loadRoster } from "@/server/queries";
 
@@ -52,8 +53,14 @@ async function RosterContent({ searchParams }: { searchParams: Promise<{ venue?:
       )}
       <ul className="divide-y divide-border border-y border-border">
         {visible.map((shift) => (
-          <li key={shift.id} className="grid gap-2 py-4 md:grid-cols-[180px_1fr_180px]">
+          <li key={shift.id} className="group grid gap-3 py-4 sm:grid-cols-[minmax(0,1fr)_auto] md:grid-cols-[180px_auto_1fr_180px] md:items-center">
             <p className="text-[11px] uppercase tracking-[0.16em] text-accent">{shift.role}</p>
+            <StaffAvatar
+              id={shift.staffId ?? shift.id}
+              name={shift.staffName}
+              role={shift.role}
+              size="sm"
+            />
             <p>{shift.staffName}</p>
             <p className="text-sm text-muted-foreground">{shift.when}</p>
           </li>
