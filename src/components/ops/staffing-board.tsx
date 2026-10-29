@@ -4,6 +4,7 @@ import * as Dialog from "@radix-ui/react-dialog";
 import { useState } from "react";
 
 import type { Reason, RecommendationStatus } from "@/lib/domain";
+import { staffingCellExplanation } from "@/lib/explain-fallback";
 import { cn } from "@/lib/utils";
 
 type Cell = {
@@ -26,10 +27,12 @@ const toneClass = {
 };
 
 export function StaffingBoard({
+  venueId,
   roles,
   hours,
   cells,
 }: {
+  venueId: string;
   roles: string[];
   hours: string[];
   cells: Cell[];
@@ -45,12 +48,22 @@ export function StaffingBoard({
     setSource("");
     const response = await fetch("/api/ai/explain", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ recommendationId: cell.id }),
+      body: JSON.stringify({ recommendationId: cell.id, venueId }),
     });
-    const body = (await response.json()) as { data?: { text: string; source: "template" | "gemini" } };
-    setCopy(body.data?.text ?? "The explanation is unavailable.");
-    setSource(body.data?.source ?? "template");
+    const body = (await response.json()) as {
+      success?: boolean;
+      message?: string;
+      data?: { text: string; source: "template" | "gemini" };
+    };
+    if (body.success && body.data?.text) {
+      setCopy(body.data.text);
+      setSource(body.data.source);
+      return;
+    }
+    setCopy(staffingCellExplanation(cell));
+    setSource("template");
   }
 
   return (

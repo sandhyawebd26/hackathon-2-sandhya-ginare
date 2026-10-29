@@ -5,7 +5,7 @@ import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "rec
 
 type Point = { label: string; predicted: number; lower?: number; upper?: number };
 
-export function DemandChart({ points }: { points: Point[] }) {
+export function DemandChart({ points, yLabel = "Covers / hour" }: { points: Point[]; yLabel?: string }) {
   const [colors, setColors] = useState({ line: "#1b1916", fill: "#8c6840", grid: "#6f675d" });
 
   useEffect(() => {
@@ -25,11 +25,13 @@ export function DemandChart({ points }: { points: Point[] }) {
 
   return (
     <div className="h-72 w-full">
+      <p className="mb-2 text-[11px] uppercase tracking-[0.18em] text-muted-foreground">{yLabel}</p>
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart data={points} margin={{ top: 10, right: 8, left: 0, bottom: 0 }}>
           <XAxis dataKey="label" tick={{ fill: colors.grid, fontSize: 11 }} tickLine={false} axisLine={false} interval="preserveStartEnd" />
           <YAxis tick={{ fill: colors.grid, fontSize: 11 }} tickLine={false} axisLine={false} width={36} />
           <Tooltip
+            formatter={(value) => [`${value ?? 0} covers`, "Predicted"]}
             contentStyle={{
               background: "var(--card)",
               border: "1px solid var(--border)",

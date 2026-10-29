@@ -171,9 +171,16 @@ export async function ensurePipeline(store: DataStore, venue: Venue, from?: Date
   await connection();
   const start = from ?? startOfZonedDay(new Date(), venue.timezone);
   const to = addDays(start, 7);
-  const existing = await store.listForecasts(venue.id, start.toISOString(), to.toISOString());
-  const expected = eachOpenHour(start, to, venue.timezone, venue.openingHour, venue.closingHour).length;
-  if (existing.length < expected) {
+  const fromIso = start.toISOString();
+  const toIso = to.toISOString();
+  const hourSlots = eachOpenHour(start, to, venue.timezone, venue.openingHour, venue.closingHour).length;
+  const [forecasts, recommendations] = await Promise.all([
+    store.listForecasts(venue.id, fromIso, toIso),
+    store.listRecommendations(venue.id, fromIso, toIso),
+  ]);
+  const coverHours = forecasts.filter((row) => row.metric === "covers").length;
+  // Forecast rows include covers + orders (2× hours). Recommendations must exist for approvals.
+  if (coverHours < hourSlots || recommendations.length === 0) {
     await runPipeline(store, venue, start, to);
   }
   return { from: start, to };

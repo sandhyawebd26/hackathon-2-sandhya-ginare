@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -15,6 +16,7 @@ function readNumber(value: FormDataEntryValue | null, fallback: number) {
 export function EventForm({ venueId }: { venueId: string }) {
   const router = useRouter();
   const [message, setMessage] = useState("");
+  const [serviceDate, setServiceDate] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   return (
@@ -41,12 +43,19 @@ export function EventForm({ venueId }: { venueId: string }) {
             note: note || undefined,
           }),
         });
-        const body = (await response.json()) as { message?: string; success?: boolean };
+        const body = (await response.json()) as {
+          message?: string;
+          success?: boolean;
+          data?: { serviceDate?: string };
+        };
         setMessage(body.message ?? "Saved");
         setPending(false);
         if (body.success) {
           formEl.reset();
           router.refresh();
+          if (body.data?.serviceDate) {
+            setServiceDate(body.data.serviceDate);
+          }
         }
       }}
     >
@@ -79,7 +88,23 @@ export function EventForm({ venueId }: { venueId: string }) {
         <Button type="submit" disabled={pending}>
           {pending ? "Recalculating" : "Add and replan"}
         </Button>
-        {message && <p className="text-sm text-muted-foreground">{message}</p>}
+        {message && <p className="text-sm text-accent">{message}</p>}
+        {serviceDate ? (
+          <p className="text-sm text-muted-foreground">
+            Next:{" "}
+            <Link className="text-foreground underline" href={`/staffing?venue=${venueId}&date=${serviceDate}`}>
+              Staffing on {serviceDate}
+            </Link>
+            {" · "}
+            <Link className="text-foreground underline" href={`/forecast?venue=${venueId}`}>
+              Forecast
+            </Link>
+            {" · "}
+            <Link className="text-foreground underline" href={`/recommendations?venue=${venueId}`}>
+              Approvals
+            </Link>
+          </p>
+        ) : null}
       </div>
     </form>
   );

@@ -1,7 +1,7 @@
 import { connection } from "next/server";
 
 import { gapTone, type Venue } from "@/lib/domain";
-import { addDays, dateKey, formatWhen, startOfZonedDay, zonedTimeToUtc } from "@/lib/time";
+import { addDays, dateKey, formatDay, formatWhen, startOfZonedDay, zonedTimeToUtc } from "@/lib/time";
 import { requireAccount } from "@/server/auth/session";
 import { ensurePipeline } from "@/server/pipeline";
 import { getStore } from "@/server/store/supabase";
@@ -35,10 +35,13 @@ export async function venueWindow(venue: Venue, date?: string) {
 export async function loadDashboard(venueId?: string) {
   const { store, venues, venue } = await resolveVenue(venueId);
   const { from, to } = await ensurePipeline(store, venue);
-  const [forecasts, recommendations, alerts] = await Promise.all([
-    store.listForecasts(venue.id, from.toISOString(), to.toISOString()),
-    store.listRecommendations(venue.id, from.toISOString(), to.toISOString()),
+  const fromIso = from.toISOString();
+  const toIso = to.toISOString();
+  const [forecasts, recommendations, alerts, signals] = await Promise.all([
+    store.listForecasts(venue.id, fromIso, toIso),
+    store.listRecommendations(venue.id, fromIso, toIso),
     store.listAlerts(venue.id),
+    store.listSignals(venue.id, fromIso, toIso),
   ]);
   const covers = forecasts.filter((row) => row.metric === "covers");
   const peak = [...covers].sort((a, b) => b.predicted - a.predicted)[0];
@@ -69,6 +72,12 @@ export async function loadDashboard(venueId?: string) {
       lower: Math.round(row.lower),
       upper: Math.round(row.upper),
     })),
+    weekRangeLabel: `${formatDay(fromIso, venue.timezone)} → ${formatDay(addDays(from, 6).toISOString(), venue.timezone)}`,
+    drivers: {
+      holidays: signals.filter((row) => row.kind === "holiday").map((row) => row.label),
+      events: signals.filter((row) => row.kind === "event").map((row) => row.label),
+      weatherSlots: signals.filter((row) => row.kind === "weather").length,
+    },
   };
 }
 

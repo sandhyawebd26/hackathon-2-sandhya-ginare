@@ -135,7 +135,7 @@ export function parseFlexibleTimestamp(value: string, timeZone: string): string 
   const trimmed = value.trim();
   if (!trimmed) return null;
   const dmy = trimmed.match(
-    /^(\d{1,2})[/. -](\d{1,2})[/. -](\d{4})(?:[ T](\d{1,2}):(\d{2}))?$/,
+    /^(\d{1,2})[/. -](\d{1,2})[/. -](\d{4})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/,
   );
   if (dmy) {
     const day = Number(dmy[1]);
@@ -143,6 +143,16 @@ export function parseFlexibleTimestamp(value: string, timeZone: string): string 
     const year = Number(dmy[3]);
     const hour = Number(dmy[4] ?? 12);
     const minute = Number(dmy[5] ?? 0);
+    if (month < 1 || month > 12 || day < 1 || day > 31) return null;
+    return zonedTimeToUtc(year, month, day, hour, minute, timeZone).toISOString();
+  }
+  const ymd = trimmed.match(/^(\d{4})[/. -](\d{1,2})[/. -](\d{1,2})(?:[ T](\d{1,2}):(\d{2})(?::(\d{2}))?)?$/);
+  if (ymd) {
+    const year = Number(ymd[1]);
+    const month = Number(ymd[2]);
+    const day = Number(ymd[3]);
+    const hour = Number(ymd[4] ?? 12);
+    const minute = Number(ymd[5] ?? 0);
     if (month < 1 || month > 12 || day < 1 || day > 31) return null;
     return zonedTimeToUtc(year, month, day, hour, minute, timeZone).toISOString();
   }

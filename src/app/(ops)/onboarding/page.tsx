@@ -28,7 +28,7 @@ async function OnboardingContent({ searchParams }: { searchParams: Promise<{ ven
         title="Map the columns, then recalculate."
         copy="Dates are read as day/month/year. In Supabase mode the file is also kept in the imports bucket."
       />
-      <ImportForm venueId={venue.id} />
+      <ImportForm venueId={venue.id} timezone={venue.timezone} />
     </>
   );
 }
