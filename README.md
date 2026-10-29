@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ShiftSense
 
-## Getting Started
+AI workforce planning for hospitality. The app forecasts hourly covers, turns them into role-level headcount, and keeps a manager in the loop.
 
-First, run the development server:
+The interface follows the editorial hotel language of [Augustine](https://augustine.qodeinteractive.com/): a light ivory house style and a dark “hotel night” style. Use the Light / Dark switch in the header. The choice is stored in the browser.
+
+## Stack
+
+- Next.js App Router, TypeScript, Tailwind CSS 4
+- Supabase Postgres, Auth, and Storage (`supabase/migrations`)
+- New accounts keep their venue, team, and roster in memory when `DATA_SOURCE=demo`
+- Forecast: weighted cyclical moving average, plus Open-Meteo, `date-holidays`, and manual events
+- Explanations: Gemini when `GEMINI_API_KEY` is set, otherwise a template built from the same drivers
+
+Headcount is never taken from the language model.
+
+## Run
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000). The floor plan at `/dashboard` works without Supabase keys.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` to `.env.local`.
 
-## Learn More
+| Variable | Purpose |
+| --- | --- |
+| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser and cookie auth |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server writes when `DATA_SOURCE=supabase` |
+| `GEMINI_API_KEY` | Optional. Google AI Studio free tier |
+| `CRON_SECRET` | Protects `/api/cron/*` in production |
+| `DATA_SOURCE` | `demo` (default) or `supabase` |
 
-To learn more about Next.js, take a look at the following resources:
+Apply `supabase/migrations/20261029120000_shiftsense.sql`, then `supabase/seed.sql`, in the Supabase SQL editor. After a manager signs up, insert a `profiles` row for their auth user and organization. Set `DATA_SOURCE=supabase`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Sample CSV files live in `public/demo/`.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Privacy
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Keep staff detail minimal. The demo uses first names only. Retention and a DPA are an operational step for a real venue, including India’s DPDP and the EU GDPR. This repository is not legal advice.
